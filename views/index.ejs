@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Product Bundle Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --p-color-bg-default: #ffffff;
+      --p-color-text-default: #212b36;
+      --p-color-icon-default: #5c5c5c;
+      --p-color-border-default: #c4c4c4;
+      --p-color-interactive-default: #0070c0;
+      --p-color-interactive-hover: #005691;
+      --p-color-surface-subdued: #f4f6f8;
+      --p-color-surface-header: #f9fafb;
+      --p-color-surface-active: #eef4f9;
+      --p-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+    body { 
+      font-family: var(--p-font-family); 
+      margin: 30px; 
+      background-color: var(--p-color-surface-subdued);
+      color: var(--p-color-text-default);
+    }
+    h1 { 
+      font-size: 28px;
+      margin-top: 0;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: var(--p-color-text-default); 
+    }
+    .card {
+      background-color: var(--p-color-bg-default);
+      border: 1px solid var(--p-color-border-default);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05); 
+    }
+    .card-header {
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--p-color-surface-subdued);
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: var(--p-color-text-default);
+    }
+    h5 { 
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: -10px; 
+        margin-bottom: 15px;
+        color: var(--p-color-text-default);
+    }
+    
+    /* -------------------------------------- */
+    .bundle-form label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-weight: 400;
+      font-size: 14px;
+    }
+    .form-group {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .input-field {
+        flex-basis: 250px; 
+        flex-grow: 1;
+    }
+    /* Standard input styles */
+    .bundle-form input[type="number"],
+.bundle-form input[type="text"],
+input[type="date"] {
+  padding: 8px 12px;
+  border: 1px solid var(--p-color-border-default);
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.bundle-form input[type="number"]:focus,
+.bundle-form input[type="text"]:focus,
+input[type="date"]:focus {
+  border-color: var(--p-color-interactive-default);
+  box-shadow: 0 0 0 1px var(--p-color-interactive-default);
+  outline: none;
+}
+
+    
+    /* --- CUSTOM FILTER UI (Market/Collection Tags) --- */
+    .custom-multi-select {
+        /* Combined border for the whole component */
+        border: 1px solid var(--p-color-border-default);
+        border-radius: 4px;
+        background-color: var(--p-color-bg-default);
+        overflow: hidden;
+    }
+
+    .filter-input-container {
+        display: flex;
+        align-items: center;
+    }
+    .filter-input-container:focus-within {
+        border-color: var(--p-color-interactive-default);
+        box-shadow: 0 0 0 1px var(--p-color-interactive-default);
+    }
+    /* UNIFIED STYLE FOR SEARCH INPUTS */
+    #tag_search_input {
+        flex-grow: 1;
+        border: none;
+        padding: 8px 12px; /* Unified padding with product list search */
+        margin: 0;
+        height: auto;
+        font-size: 14px;
+        /* FIX: Add border-bottom here for consistency */
+        border-bottom: 1px solid var(--p-color-border-default);
+    }
+    
+    /* --- Chip Containers --- */
+    #selected_tags_display, #selected_products_display, #selected_products_display_update {
+        padding: 7px 7px 0 7px;
+        min-height: 10px;
+        background-color: var(--p-color-surface-active); /* Light gray background */
+        border-bottom: 1px solid var(--p-color-border-default);
+        display: flex;
+        flex-wrap: wrap;
+    }
+    /* Hide the border if the container is empty */
+    #selected_tags_display:empty, #selected_products_display:empty, #selected_products_display_update:empty {
+        border-bottom: none;
+        min-height: 0;
+        padding: 0;
+    }
+
+    /* --- Chip Base Style --- */
+    .selected-tag, .product-chip {
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle;
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-right: 3.75px;
+        margin-bottom: 3.75px;
+        /* Unified style for white chip, blue border/text */
+        background-color: var(--p-color-bg-default);
+        border: 1px solid var(--p-color-interactive-default);
+        color: var(--p-color-interactive-default);
+        max-width: 90%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    
+    /* Remove button style */
+    .selected-tag-remove, .product-chip-remove {
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: 5px;
+        opacity: 0.8;
+        line-height: 1;
+        color: var(--p-color-interactive-default); 
+    }
+    .selected-tag-remove:hover, .product-chip-remove:hover {
+        opacity: 1;
+    }
+
+
+    .filter-options-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 120px; 
+        overflow-y: auto;
+    }
+    .filter-options-list li {
+        padding: 10px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--p-color-surface-subdued);
+        transition: background-color 0.1s;
+    }
+    .filter-options-list li:last-child {
+        border-bottom: none;
+    }
+    .filter-options-list li:hover {
+        background-color: var(--p-color-surface-active);
+    }
+    .filter-options-list li.selected {
+        background-color: var(--p-color-interactive-default);
+        color: white;
+    }
+    .filter-options-list li.selected:hover {
+        background-color: var(--p-color-interactive-hover);
+    }
+    .filter-options-list li.hidden {
+        display: none;
+    }
+
+    /* --- Custom Product Select List Styles --- */
+    .custom-product-select-wrapper {
+        border: 1px solid var(--p-color-border-default);
+        border-radius: 4px;
+        background-color: var(--p-color-bg-default);
+        overflow: hidden;
+    }
+    #product_list_search_input, #update_list_search_input {
+        width: 100%;
+        padding: 8px 12px;
+        border: none;
+        box-sizing: border-box;
+        font-size: 14px;
+        border-bottom: 1px solid var(--p-color-border-default);
+    }
+    #product_list_options, #update_list_options {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 350px; /* Always open scrollable list height */
+        overflow-y: auto;
+    }
+    .product-option-item {
+        padding: 10px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--p-color-surface-subdued);
+        transition: background-color 0.1s;
+        word-break: break-word; 
+    }
+    .product-option-item:last-child {
+        border-bottom: none;
+    }
+    .product-option-item:hover {
+        background-color: var(--p-color-surface-active);
+    }
+    .product-option-item.hidden {
+        display: none;
+    }
+
+
+    #result-summary {
+        margin-top: 0;
+        margin-bottom: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--p-color-text-default);
+    }
+    /* ---------------------------------------------------- */
+
+    .primary-button {
+      padding: 10px 20px;
+      background-color: var(--p-color-interactive-default);
+      color: white;
+      border: 1px solid var(--p-color-interactive-default);
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s, border-color 0.2s;
+      margin-top: 15px;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .primary-button:hover {
+      background-color: var(--p-color-interactive-hover);
+      border-color: var(--p-color-interactive-hover);
+    }
+    
+    .checkbox-wrapper {
+        margin-bottom: 15px;
+    }
+    .checkbox-wrapper input[type="checkbox"] {
+        margin-right: 8px;
+    }
+    .tab-container { 
+        display: flex;
+        border: 1px solid var(--p-color-border-default);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .tab { 
+        flex-grow: 1;
+        text-align: center;
+        padding: 12px 20px; 
+        cursor: pointer; 
+        background-color: var(--p-color-bg-default); 
+        border-right: 1px solid var(--p-color-border-default);
+        transition: background-color 0.2s;
+        font-weight: 500;
+    }
+    .tab:last-child {
+        border-right: none;
+    }
+    .tab:hover:not(.active) {
+        background-color: var(--p-color-surface-active);
+    }
+    .tab.active { 
+        background-color: var(--p-color-interactive-default); 
+        color: white; 
+        border-right-color: var(--p-color-interactive-default);
+    }
+    .tab.active:last-child {
+        border-right-color: var(--p-color-interactive-default);
+    }
+    .tab-content { 
+        display: none; 
+        padding-top: 5px; 
+    }
+    .tab-content.active { 
+        display: block; 
+    }
+    table { 
+      border-collapse: collapse; 
+      width: 100%; 
+    }
+    th, td { 
+      border: none; 
+      border-bottom: 1px solid var(--p-color-surface-subdued);
+      padding: 12px 16px; 
+      text-align: left; 
+      font-size: 14px;
+    }
+    th { 
+      background-color: var(--p-color-surface-header);
+      font-weight: 500;
+      color: var(--p-color-text-default);
+    }
+    
+    tr:last-child td {
+        border-bottom: none;
+    }
+    .no-bundles { 
+        color: var(--p-color-icon-default); 
+        padding: 10px 0; 
+        font-style: italic;
+    }
+    .manage-button { 
+      color: var(--p-color-interactive-default); 
+      text-decoration: none; 
+      font-size: 14px;
+      padding: 5px 0; 
+      display: inline-block;
+    }
+    .manage-button:hover { 
+      text-decoration: underline;
+      color: var(--p-color-interactive-hover);
+    }
+    
+    /* Styles for flash messages */
+    .flash-message {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-weight: 500;
+      word-break: break-word;
+      white-space: pre-wrap;
+      position: relative; 
+      transition: opacity 0.5s ease-out; 
+    }
+    .flash-message.success {
+      background-color: #d4edda; 
+      border: 1px solid #c3e6cb;
+      color: #155724; 
+    }
+    .flash-message.error {
+      background-color: #f8d7da; 
+      border: 1px solid #f5c6cb;
+      color: #721c24; 
+    }
+
+    /* Close Button Styles */
+    .close-button {
+      position: absolute;
+      top: 50%;
+      right: 15px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 5px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .close-button:hover {
+      opacity: 1;
+    }
+
+    .flash-message.success .close-button {
+        color: #155724; 
+    }
+    .flash-message.error .close-button {
+        color: #721c24; 
+    }
+
+    /* Loading Overlay Styles */
+    .loading-overlay {
+      display: none; 
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); 
+      z-index: 1000; 
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .loading-spinner {
+      border: 4px solid var(--p-color-surface-subdued);
+      border-top: 4px solid var(--p-color-interactive-default);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+      color: var(--p-color-bg-default);
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+
+    /* Animation for the spinner */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Product Bundles</h1>
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Processing...</span>
+  </div>
+  <% if (message) { 
+      const decodedMessage = decodeURIComponent(message);
+      const isError = decodedMessage.toLowerCase().includes('error') || decodedMessage.toLowerCase().includes('❌');
+      const messageClass = isError ? 'error' : 'success';
+  %>
+      <div class="flash-message <%= messageClass %>" id="flash-message">
+          <%- decodedMessage.replace(/<br>/g, '\n') %>
+          <button class="close-button" onclick="dismissMessage()">
+              &times;
+          </button>
+      </div>
+  <% } %>
+  <div class="card">
+    <div class="card-header">
+        <h2>Bundle Configuration</h2>
+    </div>
+    
+    <div class="tab-container">
+      <div class="tab active" onclick="openTab('create-bundles')">Create New Bundles</div>
+      <div class="tab" onclick="openTab('update-bundles')">Update Existing Discounts</div>
+    </div>
+  
+    <% 
+      const bundledProductIds = bundledProducts.map(p => p.id.toString());
+      const productsWithoutBundles = products.filter(p => !bundledProductIds.includes(p.id.toString()));
+    %>
+    <div id="create-bundles" class="tab-content active">
+      <h3 id="create-bundle-header">Select Products and Set Initial Discounts (<%= productsWithoutBundles.length %> Products)</h3>
+      
+      <div class="product-filter card" style="padding: 15px; margin-bottom: 20px;">
+          <div class="card-header" style="border-bottom: none; padding-bottom: 0; margin-bottom: 10px;">
+              <h3 style="margin-bottom: 0;">Product Filters</h3>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+              
+              <div class="input-field" style="max-width: 100%; flex-basis: 100%;">
+              <h5 style="margin-top: 5px; margin-bottom: 10px; font-weight: 400; color: var(--p-color-text-default);">Filter by selecting a specific Market Collection tag.</h5>
+                  
+                  <% if (marketCollections.length === 0) { %>
+                    <p class="no-bundles" style="margin: 0; padding: 8px 12px; border: 1px solid var(--p-color-border-default); border-radius: 4px;">No tags found on products for filtering.</p>
+                  <% } else { %>
+                    <div class="custom-multi-select">
+                        
+                        <div class="selected-tags-container" id="selected_tags_display">
+                            </div>
+
+                        <div class="filter-input-container">
+                            <input type="text" id="tag_search_input" placeholder="Search available tags..." autocomplete="off">
+                        </div>
+
+                        <ul class="filter-options-list" id="filter_options_list">
+                            <% marketCollections.forEach(tagObj => { %>
+                                <li data-value="<%= tagObj.tag %>"><%= tagObj.title %></li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                    <select id="filter_by_collection" name="filter_by_collection" multiple style="display:none;"></select>
+                  <% } %>
+              </div>
+          </div>
+      </div>
+      
+      <form class="bundle-form" action="/create-bundles" method="POST">
+        
+        <p id="result-summary">Showing <%= productsWithoutBundles.length %> results for all products.</p>
+
+        <label for="create_product_ids">Select Products (without bundles):</label>
+        
+        <% if (productsWithoutBundles.length === 0) { %>
+          <p class="no-bundles">No products available without bundles.</p>
+        <% } else { %>
+          <div class="custom-product-select-wrapper">
+              
+              <div id="selected_products_display">
+                  </div>
+
+              <input type="text" id="product_list_search_input" placeholder="Search products..." autocomplete="off">
+              <ul id="product_list_options">
+                  <% productsWithoutBundles.forEach(product => { %>
+                      <li class="product-option-item" 
+                          data-id="<%= product.id %>" 
+                          data-tags="<%= product.tags ? product.tags.join(',') : '' %>"
+                          data-title="<%= product.title %>">
+                          <%= product.title %> (ID: <%= product.id %>) [Tags: <%= product.tags ? product.tags.join(', ') : '' %>]
+                      </li>
+                  <% }) %>
+              </ul>
+          </div>
+          <select name="product_ids" id="create_product_ids" multiple style="display:none;"></select>
+        <div class="form-group" style="margin-top: 10px;">
+  <div class="input-field">
+   <label>Bundle Text (Information) (Optional):</label>
+<input type="text" name="bundle_text" placeholder="Bundle Details (Any Language)">
+
+  </div>
+  <div class="input-field">
+    <label>Discount for 2x (%):</label>
+    <input type="number" name="discount2" step="0.01" min="0" max="100">
+  </div>
+  <div class="input-field">
+    <label>Discount for 3x (%):</label>
+    <input type="number" name="discount3" step="0.01" min="0" max="100">
+  </div>
+</div>
+
+          <div class="checkbox-wrapper">
+            <label>
+              <input type="checkbox" name="add_image" value="true" checked> Add main product image to bundle variants
+            </label>
+          </div>
+          <button type="submit" class="primary-button">Create Bundles</button>
+        <% } %>
+      </form>
+    </div>
+  
+    <div id="update-bundles" class="tab-content">
+      <h3>Adjust Discounts for Products with Bundles (<%= bundledProducts.length %> Products)</h3>
+      <form class="bundle-form" action="/update-bundles" method="POST">
+        <label for="update_product_ids">Select Products (with bundles):</label>
+        <% if (bundledProducts.length === 0) { %>
+          <p class="no-bundles">No products with bundles to update.</p>
+        <% } else { %>
+            <div class="custom-product-select-wrapper">
+                
+                <div id="selected_products_display_update">
+                    </div>
+
+                <input type="text" id="update_list_search_input" placeholder="Search products..." autocomplete="off">
+                <ul id="update_list_options">
+                    <% bundledProducts.forEach(product => { %>
+                        <li class="product-option-item" 
+                            data-id="<%= product.id %>" 
+                            data-title="<%= product.title %>">
+                            <%= product.title %> (ID: <%= product.id %>)
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+            <select name="product_ids" id="update_product_ids_hidden" multiple style="display:none;"></select>
+          
+          <div class="form-group">
+            <div class="input-field">
+                <label>New Discount for 2x (%):</label>
+                <input type="number" name="discount2" step="0.01" min="0" max="100">
+            </div>
+            <div class="input-field">
+                <label>New Discount for 3x (%):</label>
+                <input type="number" name="discount3" step="0.01" min="0" max="100">
+            </div>
+          </div>
+          <button type="submit" class="primary-button">Update Bundles</button>
+        <% } %>
+      </form>
+    </div>
+  </div>
+
+<div class="card" id="analytics-controls-card">
+    <div class="card-header">
+        <h2>Analytics Filters</h2>
+    </div>
+    <div class="form-group" style="gap: 15px; margin-bottom: 0; flex-wrap: wrap;">
+        
+        <div class="input-field" style="flex-basis: 240px; flex-grow: 0;">
+            <label for="analytics_tag_filter">Filter by Tag (Country/Market):</label>
+            <select id="analytics_tag_filter" onchange="applyAnalyticsFilterAndSort()"
+                    style="padding: 8px 12px; border: 1px solid var(--p-color-border-default); border-radius: 4px; box-sizing: border-box; width: 100%;">
+                <option value="ALL">All Tags</option>
+                <% marketCollections.forEach(tagObj => { %>
+                    <option value="<%= tagObj.tag %>">
+                        <%= tagObj.title %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="input-field" style="flex-basis: 240px; flex-grow: 0;">
+            <label for="analytics_duration_filter">Filter by Duration:</label>
+            <select id="analytics_duration_filter" onchange="handleDurationChange()"
+                    style="padding: 8px 12px; border: 1px solid var(--p-color-border-default); border-radius: 4px; box-sizing: border-box; width: 100%;">
+                <option value="none">None (All Time)</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="last7">Last 7 Days</option>
+                <option value="custom">Custom Range</option>
+            </select>
+        </div>
+
+        <div class="input-field" id="custom-date-range" style="flex-basis: 400px; flex-grow: 1; display: none; gap: 15px;">
+            <div style="flex-grow: 1;">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" onchange="applyAnalyticsFilterAndSort()" style="width: 100%;">
+            </div>
+            <div style="flex-grow: 1;">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" onchange="applyAnalyticsFilterAndSort()" style="width: 100%;">
+            </div>
+        </div>
+
+        <div class="input-field" style="flex-basis: 180px; flex-grow: 0; margin-left:auto;">
+            <label for="analytics_sort_by">Sort By:</label>
+            <select id="analytics_sort_by" onchange="applyAnalyticsFilterAndSort()"
+                    style="padding: 8px 12px; border: 1px solid var(--p-color-border-default); border-radius: 4px; box-sizing: border-box; width: 100%;">
+                <option value="title">Product Title</option>
+                <option value="conversion_high">Performance (High to Low)</option>
+                <option value="conversion_low">Performance (Low to High)</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <h2>Existing Bundles Summary</h2>
+    </div>
+    <% if (bundledProducts.length === 0) { %>
+        <p class="no-bundles" id="analytics-no-results">No bundles created for any products.</p>
+    <% } else { %>
+        <p class="no-bundles" id="analytics-no-results" style="display: none;">No bundles match the current filters.</p>
+        <table>
+            <thead>
+              <tr>
+                <th>Product Title (ID)</th>
+                <th id="analytics-column-header">Analytics (All Time)</th> 
+                <th>Bundles Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-table-body">
+              <% bundledProducts.forEach(product => { 
+                // Calculate necessary values for display and sorting (using initial All Time data)
+                let totalVisitors = product.visitors || 0;
+                let totalSold = product.bundles.reduce((sum, b) => sum + (b.totalOrders || 0), 0);
+                let conversionRate = totalVisitors > 0 ? (totalSold / totalVisitors) * 100 : 0;
+                let formattedRate = Number.isInteger(conversionRate) ? conversionRate : conversionRate.toFixed(1);
+                let tagsString = product.tags ? product.tags.join(',') : '';
+
+                // Store original JSON data (including salesByDate array and dailyVisits) on the row for client-side filtering
+                const productDataJson = JSON.stringify({
+                    visitors: product.visitors,
+                    dailyVisits: product.dailyVisits, // 💡 NEW: Ensure this is included
+                    bundles: product.bundles.map(b => ({
+                        type: b.type,
+                        totalOrders: b.totalOrders,
+                        salesByDate: b.salesByDate
+                    }))
+                });
+              %>
+                <tr data-product-id="<%= product.id %>" 
+                    data-country-tag="<%= tagsString %>" 
+                    data-conversion-rate="<%= conversionRate.toFixed(2) %>"
+                    data-original-json="<%= encodeURIComponent(productDataJson) %>"
+                    data-original-title="<%= product.title %>"> 
+                  <td>
+                    <%= product.title %> (<%= product.id %>)
+                    <br>
+                    <small style="color: var(--p-color-icon-default);">Tags: <%= product.tags ? product.tags.join(', ') : 'None' %></small>
+                  </td>
+                  <td class="analytics-data-cell"> 
+                    <i class="fa-solid fa-users-rectangle"></i> 
+                    <strong class="visitors-count"><%= product.visitors %></strong> |
+                    
+                    <% product.bundles.forEach((bundle, index) => { %>
+                        <%= bundle.type.charAt(0) %>x: 
+                        <strong class="<%= bundle.type.charAt(0) %>x-sold"><%= bundle.totalOrders %></strong>
+                        <% if (index < product.bundles.length - 1) { %> | <% } %>
+                    <% }); %>
+                    
+                    | → <strong class="conversion-rate-display"><%= formattedRate %>%</strong>
+                  </td>
+
+
+                  <td><%= product.bundles.map(b => b.type).join(", ") %></td>
+                 <td style="display: flex; gap: 10px; align-items: center;">
+                    <a href="https://<%= process.env.SHOP %>/admin/products/<%= product.id %>#variants-section" 
+                       class="manage-button"
+                       onclick="window.open(this.href, '_blank'); return false;"
+                       style="margin-right: auto;">
+                      Manage
+                    </a>
+                    
+                    <form action="/delete-bundles" method="POST" onsubmit="return confirm('Are you sure you want to DELETE ALL BUNDLE VARIANTS for <%= product.title %>? This action cannot be undone.');">
+                        <input type="hidden" name="product_id" value="<%= product.id %>">
+                        <button type="submit" class="primary-button" style="background-color: #d9534f; border-color: #d9534f; padding: 6px 12px; margin-top: 0;">
+                            Delete
+                        </button>
+                    </form>
+                    </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+    <% } %>
+</div>
+
+<script>
+// ----------------------------------------------------
+// DEDICATED SCRIPT BLOCK FOR ANALYTICS FILTERING/SORTING
+// ----------------------------------------------------
+
+// --- Date Utilities ---
+
+/**
+ * Calculates the start and end dates based on the duration filter.
+ * Returns {startDate: Date, endDate: Date} or null if "none" is selected.
+ */
+function getDateRange() {
+    const durationFilter = document.getElementById('analytics_duration_filter').value;
+    const today = new Date();
+    // Normalize today to start of day
+    today.setHours(0, 0, 0, 0);
+
+    let startDate = null;
+    let endDate = null;
+
+    if (durationFilter === 'today') {
+        startDate = new Date(today);
+        endDate = new Date(today);
+        endDate.setHours(23, 59, 59, 999);
+    } else if (durationFilter === 'yesterday') {
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 1);
+        startDate.setHours(0, 0, 0, 0); // Ensure start of yesterday
+        endDate = new Date(startDate);
+        endDate.setHours(23, 59, 59, 999); // Ensure end of yesterday
+    } else if (durationFilter === 'last7') {
+        // Last 7 days, including today (or up to today)
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 6); 
+        endDate = new Date(today);
+        endDate.setHours(23, 59, 59, 999);
+    } else if (durationFilter === 'custom') {
+        const startInput = document.getElementById('start_date').value;
+        const endInput = document.getElementById('end_date').value;
+        
+        if (startInput) startDate = new Date(startInput);
+        if (endInput) {
+            endDate = new Date(endInput);
+            // Include sales for the entire end day
+            endDate.setHours(23, 59, 59, 999);
+        }
+        // If start or end is invalid/missing for custom, return null to show all data
+        if (!startDate || !endDate) return null;
+        
+        // Ensure start time is midnight for accurate range comparison
+        if (startDate) startDate.setHours(0, 0, 0, 0);
+
+    } else { // 'none'
+        return null; 
+    }
+    
+    return { startDate, endDate };
+}
+
+/**
+ * Handles the visibility of the custom date range inputs.
+ */
+function handleDurationChange() {
+    const durationFilter = document.getElementById('analytics_duration_filter').value;
+    const customRangeDiv = document.getElementById('custom-date-range');
+    
+    if (durationFilter === 'custom') {
+        customRangeDiv.style.display = 'flex';
+    } else {
+        customRangeDiv.style.display = 'none';
+        // Trigger filter update when selection changes away from custom
+        applyAnalyticsFilterAndSort();
+    }
+}
+
+/**
+ * Filters the table rows and updates analytics based on current filters.
+ */
+function applyAnalyticsFilterAndSort() {
+    const tableBody = document.getElementById('analytics-table-body');
+    const table = tableBody ? tableBody.closest('table') : null;
+    const tagFilter = document.getElementById('analytics_tag_filter');
+    const sortFilter = document.getElementById('analytics_sort_by');
+    const noResultsMsg = document.getElementById('analytics-no-results');
+    const headerCell = document.getElementById('analytics-column-header');
+
+    if (!tableBody || !tagFilter || !sortFilter) return;
+
+    const selectedTag = tagFilter.value.trim().toLowerCase();
+    const dateRange = getDateRange();
+    
+    // Update Header Text
+    const durationText = dateRange ? ' (Filtered)' : ' (All Time)';
+    headerCell.textContent = 'Analytics' + durationText;
+
+
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    let visibleCount = 0;
+    
+    const visibleRows = [];
+
+    rows.forEach(row => {
+        const rowTagsString = row.getAttribute('data-country-tag');
+        const rowTagsArray = rowTagsString
+            ? rowTagsString.split(',').map(t => t.trim().toLowerCase())
+            : [];
+        // Ensure that we decode the URI component before parsing the JSON
+        const originalData = JSON.parse(decodeURIComponent(row.getAttribute('data-original-json')));
+        const originalTitle = row.getAttribute('data-original-title');
+        
+        // --- 1. Filter by Tag (Country/Market) ---
+        const matchesTag = selectedTag === 'all' || rowTagsArray.includes(selectedTag);
+        
+        if (!matchesTag) {
+            row.style.display = 'none';
+            return;
+        }
+
+        // --- 2. Calculate Aggregates for Selected Date Range (Client-Side) ---
+        let filteredTotalSold = 0;
+        let filteredBundleSales = {};
+        // 💡 NEW: Calculate filtered visitor count
+        let filteredVisitors = 0; 
+        
+        // Calculate filtered visitors from dailyVisits array
+        if (originalData.dailyVisits) { // Check for the new field
+            originalData.dailyVisits.forEach(visit => {
+                const visitDate = new Date(visit.date);
+                visitDate.setHours(0, 0, 0, 0);
+                
+                if (!dateRange || (visitDate >= dateRange.startDate && visitDate <= dateRange.endDate)) {
+                    filteredVisitors += visit.quantity;
+                }
+            });
+        }
+        
+        if (originalData.bundles) {
+            originalData.bundles.forEach(bundle => {
+                let bundleSold = 0;
+                
+                // salesByDate is an array: [{date: "YYYY-MM-DD", quantity: #}]
+                bundle.salesByDate.forEach(sale => {
+                    // Create a Date object from the YYYY-MM-DD string
+                    const saleDate = new Date(sale.date);
+                    // Normalize saleDate to start of day (midnight) for comparison
+                    saleDate.setHours(0, 0, 0, 0); 
+                    
+                    if (!dateRange || (saleDate >= dateRange.startDate && saleDate <= dateRange.endDate)) {
+                        bundleSold += sale.quantity;
+                    }
+                });
+                
+                filteredBundleSales[bundle.type] = bundleSold;
+                filteredTotalSold += bundleSold;
+            });
+        }
+        
+        // --- 3. Update Table Cells with Filtered Data ---
+        // Conversion rate now uses FILTERED visitors and FILTERED sales.
+        const filteredConversionRate = filteredVisitors > 0 ? (filteredTotalSold / filteredVisitors) * 100 : 0;
+        const formattedRate = Number.isInteger(filteredConversionRate) 
+                            ? filteredConversionRate 
+                            : filteredConversionRate.toFixed(1);
+        
+        // Update data attributes for sorting
+        row.setAttribute('data-conversion-rate', filteredConversionRate.toFixed(2));
+        row.setAttribute('data-total-sold', filteredTotalSold);
+        
+        // Update the content of the analytics cell
+        const analyticsCell = row.querySelector('.analytics-data-cell');
+        if (analyticsCell) {
+            // Re-render the analytics cell content
+            analyticsCell.innerHTML = `
+                <i class="fa-solid fa-users-rectangle"></i> 
+                <strong>${filteredVisitors}</strong> | 
+                ${Object.entries(filteredBundleSales).map(([type, sold]) => 
+                    `${type.charAt(0)}x: <strong>${sold}</strong>`
+                ).join(' | ')}
+                | → <strong class="conversion-rate-display">${formattedRate}%</strong>
+            `;
+        }
+        
+        // --- 4. Final Display Status ---
+        row.style.display = '';
+        visibleCount++;
+        visibleRows.push(row);
+    });
+
+    // --- 5. Sorting ---
+    const sortBy = sortFilter.value;
+    
+    if (sortBy === 'conversion_high' || sortBy === 'conversion_low') {
+        visibleRows.sort((a, b) => {
+            const rateA = parseFloat(a.getAttribute('data-conversion-rate')) || 0;
+            const rateB = parseFloat(b.getAttribute('data-conversion-rate')) || 0;
+            return sortBy === 'conversion_high' ? rateB - rateA : rateA - rateB;
+        });
+    } else if (sortBy === 'title') {
+        visibleRows.sort((a, b) => {
+            const titleA = a.getAttribute('data-original-title').toLowerCase();
+            const titleB = b.getAttribute('data-original-title').toLowerCase();
+            return titleA.localeCompare(titleB);
+        });
+    }
+
+    // --- 6. Re-append rows in sorted order ---
+    visibleRows.forEach(row => tableBody.appendChild(row));
+    
+    // --- 7. Display Status ---
+    if (visibleCount === 0) {
+        if (noResultsMsg) noResultsMsg.style.display = 'block';
+        if (table) table.style.display = 'none';
+    } else {
+        if (noResultsMsg) noResultsMsg.style.display = 'none';
+        if (table) table.style.display = 'table';
+    }
+}
+
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Attach listeners to the select elements
+    const sortSelect = document.getElementById('analytics_sort_by');
+    const tagSelect = document.getElementById('analytics_tag_filter');
+    const durationSelect = document.getElementById('analytics_duration_filter');
+    
+    if (sortSelect) sortSelect.addEventListener('change', applyAnalyticsFilterAndSort);
+    if (tagSelect) tagSelect.addEventListener('change', applyAnalyticsFilterAndSort);
+    if (durationSelect) durationSelect.addEventListener('change', handleDurationChange);
+
+    // Initial run to apply defaults and load data
+    applyAnalyticsFilterAndSort(); 
+});
+</script>
+<script>
+    // --- Global State & Initialization ---
+    let messageTimeout; 
+    
+    // EJS data is safely parsed here
+    const MARKET_COLLECTIONS_DATA = JSON.parse('<%- JSON.stringify(marketCollections) %>');
+    const INITIAL_PRODUCT_COUNT = parseInt('<%= productsWithoutBundles.length %>');
+
+    // State for custom filter
+    const selectedFilterTags = new Set(); 
+    
+    // State for custom product multi-select
+    const selectedProductIdsCreate = new Set();
+    const selectedProductIdsUpdate = new Set();
+    
+    // Map to store product info for chip rendering
+    const productInfoMap = new Map();
+
+    // Store all product list items once for quick lookup
+    let allProductListItems;
+
+    // --- Utility Functions ---
+
+    function dismissMessage() {
+      const message = document.getElementById('flash-message');
+      if (message) {
+        if (messageTimeout) {
+          clearTimeout(messageTimeout);
+        }
+        message.style.opacity = '0';
+        setTimeout(() => {
+          message.remove();
+        }, 500);
+      }
+    }
+
+    function showLoadingOverlay() {
+      const loadingOverlay = document.getElementById('loading-overlay');
+      if (loadingOverlay) {
+        loadingOverlay.style.display = 'flex';
+      }
+    }
+
+    function openTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
+    }
+    
+    /**
+     * Renders the product chips and manages visibility of list items.
+     * @param {boolean} isCreateTab - True for Create tab, false for Update tab.
+     */
+    function renderProductChips(isCreateTab) {
+        const selectedSet = isCreateTab ? selectedProductIdsCreate : selectedProductIdsUpdate;
+        const displayContainerId = isCreateTab ? 'selected_products_display' : 'selected_products_display_update';
+        const displayContainer = document.getElementById(displayContainerId);
+        
+        if (!displayContainer) return;
+        
+        displayContainer.innerHTML = '';
+        
+        selectedSet.forEach(productId => {
+            const product = productInfoMap.get(productId);
+            if (product) {
+                // 1. Render the chip
+                const chipEl = document.createElement('span');
+                chipEl.className = 'product-chip';
+                // Use a truncated version of the title for the chip
+                const chipText = product.title.length > 50 ? product.title.substring(0, 47) + '...' : product.title;
+                chipEl.innerHTML = `${chipText} <span class="product-chip-remove" data-id="${productId}">&times;</span>`;
+                displayContainer.appendChild(chipEl);
+
+                // 2. Hide the corresponding list item
+                const listItem = document.querySelector(`.product-option-item[data-id="${productId}"]`);
+                if (listItem) {
+                    listItem.classList.add('hidden');
+                    listItem.classList.remove('selected'); 
+                }
+            }
+        });
+        
+        // 3. Unhide products that are no longer selected (must be done before re-filtering)
+        if (allProductListItems) {
+            allProductListItems.forEach(itemEl => {
+                const productId = itemEl.getAttribute('data-id');
+                if (!selectedSet.has(productId)) {
+                    itemEl.classList.remove('hidden');
+                }
+            });
+        }
+        
+        // 4. Re-filter the visible list items based on search/tags (if needed)
+        const activeFilters = isCreateTab ? Array.from(selectedFilterTags) : [];
+        const searchInputId = isCreateTab ? 'product_list_search_input' : 'update_list_search_input';
+        const listId = isCreateTab ? 'product_list_options' : 'update_list_options';
+
+        filterProductList(listId, searchInputId, activeFilters, isCreateTab);
+    }
+    
+    // Function to handle click on a product list item
+    function toggleProductSelection(itemEl, isCreateTab) {
+        const productId = itemEl.getAttribute('data-id');
+        const selectedSet = isCreateTab ? selectedProductIdsCreate : selectedProductIdsUpdate;
+        const hiddenSelectId = isCreateTab ? 'create_product_ids' : 'update_product_ids_hidden';
+        const hiddenSelect = document.getElementById(hiddenSelectId);
+
+        if (selectedSet.has(productId)) {
+            selectedSet.delete(productId);
+        } else {
+            selectedSet.add(productId);
+        }
+        
+        // Update Chips and List Visibility
+        renderProductChips(isCreateTab);
+
+        // Update the hidden select element for form submission
+        hiddenSelect.innerHTML = '';
+        selectedSet.forEach(id => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.selected = true;
+            hiddenSelect.appendChild(option);
+        });
+    }
+
+    /**
+     * Filters the product list based on the search query and active collection tags.
+     */
+    function filterProductList(listId, searchInputId, tagFilters, isCreateTab) {
+        const productList = document.getElementById(listId);
+        const searchInput = document.getElementById(searchInputId);
+        const query = searchInput.value.toLowerCase();
+        let visibleCount = 0;
+        
+        const currentSelectedSet = isCreateTab ? selectedProductIdsCreate : selectedProductIdsUpdate;
+
+        if (!productList) return;
+
+        Array.from(productList.children).forEach(itemEl => {
+            // Skip already selected items (they are handled by renderProductChips setting the 'hidden' class)
+            if (currentSelectedSet.has(itemEl.getAttribute('data-id'))) {
+                itemEl.classList.add('hidden');
+                return;
+            }
+            
+            // Filtering logic for UNSELECTED items
+            const productTagsAttr = itemEl.getAttribute('data-tags'); // Only present on Create tab items
+            const productTitle = itemEl.getAttribute('data-title').toLowerCase();
+            const tagsArray = productTagsAttr ? productTagsAttr.toLowerCase().split(',').map(t => t.trim()).filter(Boolean) : [];
+            
+            // 1. Tag Filtering: Only for Create Tab
+            const matchesTagFilter = !isCreateTab || tagFilters.length === 0 || tagFilters.some(filterTag => tagsArray.includes(filterTag));
+            
+            // 2. Search Query Filtering
+            const matchesSearchQuery = productTitle.includes(query);
+
+            if (matchesTagFilter && matchesSearchQuery) {
+                itemEl.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                itemEl.classList.add('hidden');
+            }
+        });
+
+        // Update results summary only for the Create tab
+        if (isCreateTab) {
+            // Total products visible is visibleCount (unselected) + selectedProductIdsCreate.size
+            updateResultSummary(visibleCount + currentSelectedSet.size, tagFilters);
+        }
+    }
+
+    // Attach listeners for product search and selection
+    function attachProductListListeners() {
+        const createList = document.getElementById('product_list_options');
+        const createSearch = document.getElementById('product_list_search_input');
+        const updateList = document.getElementById('update_list_options');
+        const updateSearch = document.getElementById('update_list_search_input');
+        const createChipDisplay = document.getElementById('selected_products_display');
+        const updateChipDisplay = document.getElementById('selected_products_display_update');
+
+        // Store all list items once
+        allProductListItems = document.querySelectorAll('#product_list_options .product-option-item, #update_list_options .product-option-item');
+
+        // --- Create Tab Listeners ---
+        if (createList) {
+            // Selection logic (when clicking a list item)
+            createList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('product-option-item')) {
+                    toggleProductSelection(e.target, true);
+                }
+            });
+        }
+        if (createSearch) {
+            // Search logic (when typing)
+            createSearch.addEventListener('input', () => {
+                filterProductList('product_list_options', 'product_list_search_input', Array.from(selectedFilterTags), true);
+            });
+        }
+        if (createChipDisplay) {
+            // Chip removal logic (when clicking 'x' on a chip)
+            createChipDisplay.addEventListener('click', (e) => {
+                if (e.target.classList.contains('product-chip-remove')) {
+                    const productId = e.target.getAttribute('data-id');
+                    const listItem = document.querySelector(`#product_list_options .product-option-item[data-id="${productId}"]`);
+                    if (listItem) {
+                        toggleProductSelection(listItem, true); // This will deselect, re-render chips, and re-filter
+                    }
+                }
+            });
+        }
+
+        // --- Update Tab Listeners ---
+        if (updateList) {
+            updateList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('product-option-item')) {
+                    toggleProductSelection(e.target, false);
+                }
+            });
+        }
+        if (updateSearch) {
+            updateSearch.addEventListener('input', () => {
+                filterProductList('update_list_options', 'update_list_search_input', [], false);
+            });
+        }
+        if (updateChipDisplay) {
+             updateChipDisplay.addEventListener('click', (e) => {
+                if (e.target.classList.contains('product-chip-remove')) {
+                    const productId = e.target.getAttribute('data-id');
+                    const listItem = document.querySelector(`#update_list_options .product-option-item[data-id="${productId}"]`);
+                    if (listItem) {
+                        toggleProductSelection(listItem, false);
+                    }
+                }
+            });
+        }
+    }
+    
+    // --- Custom Filter Logic (Collection Tags) ---
+
+    function updateResultSummary(currentCount, activeFilters) {
+        const productCountHeader = document.getElementById('create-bundle-header');
+        const resultSummary = document.getElementById('result-summary');
+
+        if (productCountHeader && resultSummary) {
+            if (activeFilters.length > 0) {
+                const collectionTitles = activeFilters.map(tag => {
+                    const tagObject = MARKET_COLLECTIONS_DATA.find(c => c.tag && c.tag.toLowerCase() === tag);
+                    return tagObject ? tagObject.title : tag.toUpperCase();
+                }).join(', ');
+                
+                productCountHeader.textContent = `Select Products and Set Initial Discounts (${currentCount} Products)`;
+                resultSummary.textContent = `Showing ${currentCount} results for selected tags: ${collectionTitles}`;
+            } else {
+                 productCountHeader.textContent = `Select Products and Set Initial Discounts (${INITIAL_PRODUCT_COUNT} Products)`;
+                 resultSummary.textContent = `Showing ${INITIAL_PRODUCT_COUNT} results for all products.`;
+            }
+        }
+    }
+
+    /**
+     * Renders the selected tags (chips) and triggers the product list filter.
+     */
+    function renderSelectedTags() {
+        const display = document.getElementById('selected_tags_display');
+        const hiddenSelect = document.getElementById('filter_by_collection');
+        const optionsList = document.getElementById('filter_options_list');
+
+        display.innerHTML = '';
+        hiddenSelect.innerHTML = '';
+        
+        const activeFilters = Array.from(selectedFilterTags);
+
+        // 1. Manage List Item Visibility (Unhide all first, then hide selected)
+        optionsList.querySelectorAll('li').forEach(li => {
+            li.classList.remove('hidden');
+            li.classList.remove('selected');
+        });
+
+        activeFilters.forEach(tagValue => {
+            const tagObject = MARKET_COLLECTIONS_DATA.find(c => c.tag && c.tag.toLowerCase() === tagValue);
+            const tagTitle = tagObject ? tagObject.title : tagValue.toUpperCase();
+            
+            // 1. Render the chip (using the unified 'product-chip' style)
+            const tagEl = document.createElement('span');
+            tagEl.className = 'product-chip'; 
+            tagEl.innerHTML = `${tagTitle} <span class="selected-tag-remove" data-value="${tagValue}">&times;</span>`;
+            display.appendChild(tagEl);
+
+            // 2. Hide the corresponding list item
+            const listItem = optionsList.querySelector(`li[data-value="${tagValue}"]`);
+            if (listItem) {
+                listItem.classList.add('hidden');
+                listItem.classList.remove('selected'); 
+            }
+
+            // 3. Update the hidden select element for form submission 
+            const option = new Option(tagTitle, tagValue, true, true);
+            hiddenSelect.add(option);
+        });
+
+        // Toggle border-bottom of the tags container
+        if (display) {
+             display.style.borderBottom = activeFilters.length > 0 ? '1px solid var(--p-color-border-default)' : 'none';
+        }
+
+        // IMPORTANT: Re-filter the product list using the new tags
+        filterProductList('product_list_options', 'product_list_search_input', activeFilters, true);
+        
+        // Ensure the search input for tags remains visible
+        const tagSearchInput = document.getElementById('tag_search_input');
+        if (tagSearchInput) {
+            tagSearchInput.value = '';
+            tagSearchInput.dispatchEvent(new Event('input')); // Re-run search filter on the tag list itself
+        }
+    }
+
+    function toggleTag(tagValue, tagEl) {
+        const normalizedTagValue = tagValue.toLowerCase(); 
+
+        if (selectedFilterTags.has(normalizedTagValue)) {
+            selectedFilterTags.delete(normalizedTagValue);
+        } else {
+            selectedFilterTags.add(normalizedTagValue);
+        }
+        renderSelectedTags(); // Renders tags, manages list visibility, and calls filterProductList
+    }
+    
+    function attachCustomFilterListeners() {
+        const optionsList = document.getElementById('filter_options_list');
+        const searchInput = document.getElementById('tag_search_input');
+        const selectedTagsDisplay = document.getElementById('selected_tags_display');
+
+        if (!optionsList || !searchInput || !selectedTagsDisplay) return;
+
+        // 1. List Item Click Listener
+        optionsList.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI' && e.target.getAttribute('data-value')) {
+                const tagValue = e.target.getAttribute('data-value');
+                toggleTag(tagValue, e.target); 
+            }
+        });
+
+        // 2. Remove Tag Click Listener (Delegated)
+        selectedTagsDisplay.addEventListener('click', (e) => {
+            if (e.target.classList.contains('selected-tag-remove')) {
+                const tagValue = e.target.getAttribute('data-id') || e.target.getAttribute('data-value');
+                const liEl = optionsList.querySelector(`li[data-value="${tagValue}"]`);
+                toggleTag(tagValue, liEl); 
+            }
+        });
+        
+        // 3. Search Input Listener
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const listItems = optionsList.querySelectorAll('li');
+            
+            listItems.forEach(li => {
+                const title = li.textContent.toLowerCase();
+                const isSelected = selectedFilterTags.has(li.getAttribute('data-value'));
+
+                if (!isSelected && title.includes(query)) {
+                    li.classList.remove('hidden');
+                } else if (!isSelected) {
+                    li.classList.add('hidden');
+                }
+            });
+        });
+    }
+
+    // --- Default Selection Function ---
+    function selectDefaultProduct() {
+        const firstItem = document.querySelector('#product_list_options .product-option-item');
+        if (firstItem) {
+            // Programmatically select the first item
+            // We use setTimeout to ensure all event handlers and DOM are fully initialized
+            setTimeout(() => {
+                toggleProductSelection(firstItem, true);
+            }, 0);
+        }
+    }
+
+    // --- DOMContentLoaded Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        
+        // Populate productInfoMap
+        const rawLists = document.querySelectorAll('#product_list_options, #update_list_options');
+        rawLists.forEach(list => {
+            list.querySelectorAll('.product-option-item').forEach(itemEl => {
+                const id = itemEl.getAttribute('data-id');
+                const title = itemEl.getAttribute('data-title');
+                productInfoMap.set(id, { id: id, title: title, element: itemEl });
+            });
+        });
+
+        attachCustomFilterListeners();
+        attachProductListListeners();
+
+        // Run initial rendering and filtering
+        renderSelectedTags(); // Renders tag chips and triggers create product filter
+        renderProductChips(true); // Manages visibility for create tab
+        renderProductChips(false); // Manages visibility for update tab
+
+        // FIX: Select the first product by default ONLY if there are products available
+        if ('<%= productsWithoutBundles.length %>' > 0) {
+            selectDefaultProduct();
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab') || 'create-bundles';
+        openTab(tab);
+
+        const messageElement = document.getElementById('flash-message');
+        if (messageElement) {
+            messageTimeout = setTimeout(dismissMessage, 10000);
+            setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
+
+        // Add submit event listeners to all forms and pass tab parameter
+        const createForm = document.querySelector('#create-bundles .bundle-form');
+        const updateForm = document.querySelector('#update-bundles .bundle-form');
+
+        if (createForm) {
+            createForm.addEventListener('submit', (e) => {
+                if (selectedProductIdsCreate.size === 0) {
+                    alert('Please select at least one product before creating bundles.');
+                    e.preventDefault();
+                    return;
+                }
+                showLoadingOverlay();
+                e.target.action = '/create-bundles?tab=create-bundles';
+            });
+        }
+        if (updateForm) {
+            updateForm.addEventListener('submit', (e) => {
+                if (selectedProductIdsUpdate.size === 0) {
+                    alert('Please select at least one product before updating bundles.');
+                    e.preventDefault();
+                    return;
+                }
+                e.target.querySelector('#update_product_ids_hidden').name = 'product_ids';
+                showLoadingOverlay();
+                e.target.action = '/update-bundles?tab=update-bundles';
+            });
+        }
+        
+        // 💡 NEW: Event listener for Delete forms using delegation on the table body
+        document.querySelector('tbody').addEventListener('submit', (e) => {
+            // Check if the submitted form's action is /delete-bundles
+            if (e.target.getAttribute('action') === '/delete-bundles') {
+                showLoadingOverlay();
+                // Set the correct return URL parameter
+                e.target.action = '/delete-bundles?tab=existing-bundles';
+            }
+        });
+    });
+</script>
+</body>
+</html>

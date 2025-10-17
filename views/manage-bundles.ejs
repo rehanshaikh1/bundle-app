@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Bundles - <%= product.title %></title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { color: #333; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .no-bundles { color: #666; }
+    .back-button { padding: 5px 10px; background-color: #6c757d; color: white; border: none; text-decoration: none; }
+    .back-button:hover { background-color: #5a6268; }
+  </style>
+</head>
+<body>
+  <h1>Manage Bundles for <%= product.title %> (ID: <%= product.id %>)</h1>
+  <a href="/" class="back-button">Back to Dashboard</a>
+  <% if (product.bundles && product.bundles.length > 0) { %>
+    <table>
+      <tr>
+        <th>Bundle Type</th>
+        <th>Variant ID</th>
+        <th>Price</th>
+        <th>Available Quantity</th>
+      </tr>
+      <% product.bundles.forEach(bundle => { %>
+        <tr>
+          <td><%= bundle.type %></td>
+          <td><%= bundle.variantId %></td>
+          <td>$<%= bundle.price %></td>
+          <td><%= bundle.available %></td>
+        </tr>
+      <% }) %>
+    </table>
+  <% } else { %>
+    <p class="no-bundles">No bundles found for this product.</p>
+  <% } %>
+</body>
+</html>
